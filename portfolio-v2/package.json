@@ -1,9 +1,0 @@
-{
-  "name": "kharis-portfolio",
-  "version": "1.0.0",
-  "dependencies": {
-    "@vercel/blob": "^0.23.0",
-    "@vercel/kv": "^2.0.0",
-    "formidable": "^3.5.1"
-  }
-}
