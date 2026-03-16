@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — KDH Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #050505;
+    --dark: #0a0a0a;
+    --panel: #111;
+    --border: #1e1e1e;
+    --red: #e8002d;
+    --green: #2ecc71;
+    --white: #f0f0f0;
+    --mono: 'Share Tech Mono', monospace;
+    --body: 'Inter', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--black); color: var(--white); font-family: var(--body); min-height: 100vh; }
+
+  /* LOGIN */
+  #loginScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .login-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 48px;
+    width: 360px;
+    position: relative;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  }
+  .login-box::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--red); }
+  .login-title { font-family: var(--mono); font-size: 11px; color: var(--red); letter-spacing: 3px; margin-bottom: 32px; }
+  .login-label { font-size: 11px; font-weight: 500; color: #555; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block; }
+  .login-input {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 12px 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+    margin-bottom: 20px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .login-input:focus { border-color: var(--red); }
+  .login-btn {
+    width: 100%;
+    background: var(--red);
+    color: white;
+    border: none;
+    padding: 13px;
+    font-family: var(--body);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  }
+  .login-btn:hover { background: #ff1744; }
+  .login-error { font-family: var(--mono); font-size: 10px; color: var(--red); margin-top: 12px; display: none; letter-spacing: 1px; }
+
+  /* ADMIN PANEL */
+  #adminPanel { display: none; }
+
+  .admin-nav {
+    background: var(--dark);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .admin-nav-title { font-family: var(--mono); font-size: 12px; color: var(--red); letter-spacing: 2px; }
+  .logout-btn {
+    font-family: var(--body);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    padding: 6px 16px;
+    border: 1px solid #333;
+    background: transparent;
+    color: #555;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover { color: var(--red); border-color: var(--red); }
+
+  .admin-body { max-width: 960px; margin: 0 auto; padding: 48px 32px; }
+
+  .admin-section { margin-bottom: 64px; }
+  .admin-section-title { font-family: var(--mono); font-size: 11px; color: #555; letter-spacing: 3px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+
+  /* UPLOAD FORM */
+  .upload-form {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 32px;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  .form-label { font-size: 11px; font-weight: 500; color: #555; letter-spacing: 1px; text-transform: uppercase; }
+  .form-input, .form-select {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 11px 14px;
+    font-family: var(--body);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus { border-color: var(--red); }
+  .form-select option { background: var(--dark); }
+
+  .upload-zone {
+    border: 1px dashed #2a2a2a;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--red); background: rgba(232,0,45,0.03); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-icon { font-size: 32px; margin-bottom: 10px; opacity: 0.3; }
+  .upload-text { font-family: var(--mono); font-size: 10px; color: #444; letter-spacing: 2px; line-height: 2; }
+  .upload-preview {
+    width: 100%; max-height: 200px;
+    object-fit: cover;
+    display: none;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .submit-btn {
+    background: var(--red);
+    color: white;
+    border: none;
+    padding: 13px 32px;
+    font-family: var(--body);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .submit-btn:hover { background: #ff1744; }
+  .submit-btn:disabled { background: #333; cursor: not-allowed; }
+
+  .status-msg {
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    display: none;
+  }
+  .status-msg.success { color: var(--green); }
+  .status-msg.error { color: var(--red); }
+
+  /* WORKS LIST */
+  .works-list { display: flex; flex-direction: column; gap: 2px; }
+  .work-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .work-thumb {
+    width: 60px; height: 44px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--dark);
+  }
+  .work-info { flex: 1; }
+  .work-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .work-cat { font-family: var(--mono); font-size: 10px; color: var(--red); letter-spacing: 1px; }
+  .work-visible {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .work-visible.on { border-color: var(--green); color: var(--green); }
+  .work-visible.off { border-color: #333; color: #444; }
+  .delete-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 1px solid #333;
+    color: #444;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+  .delete-btn:hover { border-color: var(--red); color: var(--red); }
+
+  .empty-works { font-family: var(--mono); font-size: 10px; color: #333; letter-spacing: 2px; padding: 40px; text-align: center; border: 1px dashed #1a1a1a; }
+
+  .progress-bar {
+    height: 3px;
+    background: #1a1a1a;
+    margin-top: 12px;
+    display: none;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--red), #ff6b00);
+    width: 0%;
+    transition: width 0.3s;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-title">// ADMIN ACCESS</div>
+    <label class="login-label">Password</label>
+    <input type="password" class="login-input" id="passwordInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">Login</button>
+    <div class="login-error" id="loginError">// ACCESS DENIED</div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <div class="admin-nav">
+    <div class="admin-nav-title">// KDH ADMIN PANEL</div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- UPLOAD -->
+    <div class="admin-section">
+      <div class="admin-section-title">UPLOAD NEW WORK</div>
+      <div class="upload-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Judul Karya</label>
+            <input type="text" class="form-input" id="workTitle" placeholder="e.g. Poster Concert Series">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kategori</label>
+            <select class="form-select" id="workCategory">
+              <option value="Poster Design">Poster Design</option>
+              <option value="Social Media">Social Media</option>
+              <option value="Brand Identity">Brand Identity</option>
+              <option value="Photo Manipulation">Photo Manipulation</option>
+              <option value="Typography">Typography</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:20px;">
+          <label class="form-label">Deskripsi (opsional)</label>
+          <input type="text" class="form-input" id="workDesc" placeholder="Short description...">
+        </div>
+
+        <img id="uploadPreview" class="upload-preview">
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="fileInput" accept="image/*" onchange="previewFile(this)">
+          <div class="upload-icon">📁</div>
+          <div class="upload-text">DRAG & DROP atau KLIK untuk pilih gambar<br>JPG, PNG, WEBP — Max 4MB</div>
+        </div>
+
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="uploadWork()">
+          <span>Upload Karya</span>
+        </button>
+        <div class="status-msg" id="statusMsg"></div>
+      </div>
+    </div>
+
+    <!-- WORKS LIST -->
+    <div class="admin-section">
+      <div class="admin-section-title">MANAGE WORKS</div>
+      <div class="works-list" id="worksList">
+        <div class="empty-works">Loading...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_PASSWORD = 'admin123'; // Ganti di sini atau pakai env var
+
+function login() {
+  const pwd = document.getElementById('passwordInput').value;
+  if (pwd === ADMIN_PASSWORD) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadWorks();
+  } else {
+    const err = document.getElementById('loginError');
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 2000);
+  }
+}
+
+function logout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('passwordInput').value = '';
+}
+
+function previewFile(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const preview = document.getElementById('uploadPreview');
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// Drag & drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('dragover');
+  const files = e.dataTransfer.files;
+  if (files[0]) {
+    document.getElementById('fileInput').files = files;
+    previewFile(document.getElementById('fileInput'));
+  }
+});
+
+async function uploadWork() {
+  const title = document.getElementById('workTitle').value.trim();
+  const category = document.getElementById('workCategory').value;
+  const desc = document.getElementById('workDesc').value.trim();
+  const file = document.getElementById('fileInput').files[0];
+  const statusEl = document.getElementById('statusMsg');
+  const btn = document.getElementById('submitBtn');
+  const progress = document.getElementById('progressBar');
+  const fill = document.getElementById('progressFill');
+
+  if (!title) return showStatus('Judul wajib diisi!', 'error');
+  if (!file) return showStatus('Pilih gambar dulu!', 'error');
+  if (file.size > 4 * 1024 * 1024) return showStatus('File terlalu besar! Max 4MB.', 'error');
+
+  btn.disabled = true;
+  btn.querySelector('span').textContent = 'Uploading...';
+  progress.style.display = 'block';
+  fill.style.width = '30%';
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('title', title);
+    formData.append('category', category);
+    formData.append('desc', desc);
+    formData.append('password', ADMIN_PASSWORD);
+
+    fill.style.width = '60%';
+
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    fill.style.width = '100%';
+    setTimeout(() => { progress.style.display = 'none'; fill.style.width = '0%'; }, 500);
+
+    if (data.success) {
+      showStatus('✓ Karya berhasil diupload!', 'success');
+      document.getElementById('workTitle').value = '';
+      document.getElementById('workDesc').value = '';
+      document.getElementById('fileInput').value = '';
+      document.getElementById('uploadPreview').style.display = 'none';
+      loadWorks();
+    } else {
+      showStatus('Error: ' + (data.error || 'Upload gagal'), 'error');
+    }
+  } catch (err) {
+    showStatus('Error: ' + err.message, 'error');
+  }
+
+  btn.disabled = false;
+  btn.querySelector('span').textContent = 'Upload Karya';
+}
+
+function showStatus(msg, type) {
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  el.className = 'status-msg ' + type;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 4000);
+}
+
+async function loadWorks() {
+  const list = document.getElementById('worksList');
+  try {
+    const res = await fetch('/api/portfolio?all=true');
+    const data = await res.json();
+    if (!data.works || data.works.length === 0) {
+      list.innerHTML = '<div class="empty-works">Belum ada karya — upload dulu!</div>';
+      return;
+    }
+    list.innerHTML = data.works.map(w => `
+      <div class="work-item" id="item-${w.id}">
+        ${w.gambar ? `<img class="work-thumb" src="${w.gambar}" alt="">` : '<div class="work-thumb"></div>'}
+        <div class="work-info">
+          <div class="work-title">${w.judul}</div>
+          <div class="work-cat">${w.kategori}</div>
+        </div>
+        <button class="work-visible ${w.tampilkan ? 'on' : 'off'}" onclick="toggleWork('${w.id}', ${w.tampilkan})">
+          ${w.tampilkan ? 'VISIBLE' : 'HIDDEN'}
+        </button>
+        <button class="delete-btn" onclick="deleteWork('${w.id}')">DELETE</button>
+      </div>
+    `).join('');
+  } catch {
+    list.innerHTML = '<div class="empty-works">Gagal load works</div>';
+  }
+}
+
+async function toggleWork(id, current) {
+  await fetch('/api/toggle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, tampilkan: !current, password: ADMIN_PASSWORD })
+  });
+  loadWorks();
+}
+
+async function deleteWork(id) {
+  if (!confirm('Hapus karya ini?')) return;
+  await fetch('/api/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, password: ADMIN_PASSWORD })
+  });
+  loadWorks();
+}
+</script>
+</body>
+</html>
